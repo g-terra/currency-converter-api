@@ -12,7 +12,7 @@ public class ExchangerateCurrencyExchangeProvider implements CurrencyExchangePro
 
     @Override
     public double getRate(String source, String target) {
-        return 0;
+        return exchangerateClient.getRate(source, target).getBody().getRates().get(target);
     }
 
 }
