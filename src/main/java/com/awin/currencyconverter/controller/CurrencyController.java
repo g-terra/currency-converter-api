@@ -28,8 +28,12 @@ public class CurrencyController {
             @Valid @NotBlank(message = "target must not be empty") @RequestParam("target") String target,
             @Valid @Positive(message = "amount must be a positive number") @RequestParam("amount") double amount
     ) {
+
+        //TODO: change response type to object
         return currencyService.convert(source, target, amount);
     }
+
+    //TODO: introduce endpoint for getting available currencies
 
 
 }
