@@ -1,23 +1,24 @@
 package com.awin.currencyconverter.client.exchangerate;
 
+import com.awin.currencyconverter.client.exception.FailedToRetrieveExchangeRateException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.lang.annotation.Target;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class ExchangerateCurrencyExchangeProviderTest {
 
-
     private ExchangerateCurrencyExchangeProvider provider;
-
 
     private ExchangerateClient client;
 
@@ -29,19 +30,108 @@ class ExchangerateCurrencyExchangeProviderTest {
     }
 
     @Test
-    void getRate() {
+    void should_return_expected_rate_for_given_target_and_source() {
 
-        ExchangerateRateResponse clientResponse = ExchangerateRateResponse.builder()
-                .base("EUR")
+        //GIVEN
+        String source = "EUR";
+        String target = "PLN";
+        Double expectedRate = 2d;
+
+        //AND
+        ExchangerateRateResponse mockResponse = ExchangerateRateResponse.builder()
+                .base(source)
                 .success(true)
-                .rates(Map.of("PLN", 2d))
+                .rates(Map.of(target, expectedRate))
                 .build();
 
-        when(client.getRate("EUR" , "PLN")).thenReturn(ResponseEntity.of(Optional.of(clientResponse)));
+        when(client.getRate(source, target)).thenReturn(ResponseEntity.of(Optional.of(mockResponse)));
 
-        double rate = provider.getRate("EUR", "PLN");
+        //WHEN
+        double actualRate = provider.getRate(source, target);
 
-        assertEquals(2,rate);
+
+        //THEN
+        assertEquals(expectedRate, actualRate);
 
     }
+
+    @Test
+    void should_throw_exception_when_client_response_does_not_have_status_2xx() {
+
+        //GIVEN
+        String source = "EUR";
+        String target = "PLN";
+        Double expectedRate = 2d;
+
+        //AND
+        ExchangerateRateResponse mockResponse = ExchangerateRateResponse.builder()
+                .base(source)
+                .success(true)
+                .rates(Map.of(target, expectedRate))
+                .build();
+
+        when(client.getRate(source, target)).thenReturn(ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(mockResponse));
+
+        //WHEN
+        FailedToRetrieveExchangeRateException ex = assertThrows(FailedToRetrieveExchangeRateException.class, () -> provider.getRate(source, target));
+
+        //THEN
+        assertEquals("Failed to retrieve exchange rate for EUR -> PLN.", ex.getMessage());
+        assertEquals("Provider server returned :503 SERVICE_UNAVAILABLE", ex.getReason());
+
+
+    }
+
+
+    @Test
+    void should_throw_exception_when_client_response_is_empty() {
+
+        //GIVEN
+        String source = "EUR";
+        String target = "PLN";
+
+        Map<String, Double> expectedRates = new HashMap<>();
+        expectedRates.put(target,null);
+
+        //AND
+        ExchangerateRateResponse mockResponse = ExchangerateRateResponse.builder()
+                .base(source)
+                .success(true)
+                .rates(expectedRates)
+                .build();
+
+
+        //AND
+        when(client.getRate(source, target)).thenReturn(ResponseEntity.status(HttpStatus.OK).body(mockResponse));
+
+        //WHEN
+        FailedToRetrieveExchangeRateException ex = assertThrows(FailedToRetrieveExchangeRateException.class, () -> provider.getRate(source, target));
+
+        //THEN
+        assertEquals("Failed to retrieve exchange rate for EUR -> PLN.", ex.getMessage());
+        assertEquals("Response has null rate for PLN", ex.getReason());
+
+    }
+
+
+    @Test
+    void should_throw_exception_when_response_body_is_null() {
+
+        //GIVEN
+        String source = "EUR";
+        String target = "PLN";
+
+        //AND
+        when(client.getRate(source, target)).thenReturn(ResponseEntity.status(HttpStatus.OK).body(null));
+
+        //WHEN
+        FailedToRetrieveExchangeRateException ex = assertThrows(FailedToRetrieveExchangeRateException.class, () -> provider.getRate(source, target));
+
+        //THEN
+        assertEquals("Failed to retrieve exchange rate for EUR -> PLN.", ex.getMessage());
+        assertEquals("Empty response", ex.getReason());
+
+    }
+
+
 }

@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.Map;
+import java.util.Optional;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -16,5 +17,9 @@ public class ExchangerateRateResponse {
      private boolean success;
      private String base;
      private Map<String,Double> rates;
+
+     public Optional<Double> getRate(String target){
+          return Optional.ofNullable(rates.get(target));
+     }
 
 }
