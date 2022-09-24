@@ -2,12 +2,18 @@ package com.awin.currencyconverter.controller;
 
 import com.awin.currencyconverter.service.CurrencyExchanger;
 import org.springframework.http.MediaType;
+
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Positive;
 
 @RestController
+@Validated
 public class CurrencyController {
 
     private final CurrencyExchanger currencyService;
@@ -18,16 +24,12 @@ public class CurrencyController {
 
     @GetMapping(value = "currencies/convert", produces = MediaType.APPLICATION_JSON_VALUE)
     public double convert(
-            @RequestParam("source") String source,
-            @RequestParam("target") String target,
-            @RequestParam("amount") double amount) {
-
-
-        //TODO: fix response to proper json and delegate also handling of errors to controller advise
+            @Valid @NotBlank(message = "source must not be empty") @RequestParam("source") String source,
+            @Valid @NotBlank(message = "target must not be empty") @RequestParam("target") String target,
+            @Valid @Positive(message = "amount must be a positive number") @RequestParam("amount") double amount
+    ) {
         return currencyService.convert(source, target, amount);
     }
-
-
 
 
 }

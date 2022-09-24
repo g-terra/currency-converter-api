@@ -153,7 +153,7 @@ class ExchangerateCurrencyExchangeProviderTest {
         CurrencyNotAvailableException ex = assertThrows(CurrencyNotAvailableException.class, () -> provider.getRate(source, target));
 
         //THEN
-        assertEquals("INVALID is not an available currency", ex.getMessage());
+        assertEquals("\"INVALID\" is not an available currency.", ex.getMessage());
 
     }
 
@@ -171,7 +171,7 @@ class ExchangerateCurrencyExchangeProviderTest {
         CurrencyNotAvailableException ex = assertThrows(CurrencyNotAvailableException.class, () -> provider.getRate(source, target));
 
         //THEN
-        assertEquals("INVALID is not an available currency", ex.getMessage());
+        assertEquals("\"INVALID\" is not an available currency.", ex.getMessage());
 
     }
 
@@ -189,7 +189,7 @@ class ExchangerateCurrencyExchangeProviderTest {
         FailedToRetrieveAvailableCurrencies ex = assertThrows(FailedToRetrieveAvailableCurrencies.class, () -> provider.getRate(source, target));
 
         //THEN
-        assertEquals("Failed to retrieve available currencies", ex.getMessage());
+        assertEquals("Failed to retrieve available currencies.", ex.getMessage());
         assertEquals("500 INTERNAL_SERVER_ERROR", ex.getReason());
 
     }
@@ -208,7 +208,7 @@ class ExchangerateCurrencyExchangeProviderTest {
         FailedToRetrieveAvailableCurrencies ex = assertThrows(FailedToRetrieveAvailableCurrencies.class, () -> provider.getRate(source, target));
 
         //THEN
-        assertEquals("Failed to retrieve available currencies", ex.getMessage());
+        assertEquals("Failed to retrieve available currencies.", ex.getMessage());
         assertEquals("Response is empty", ex.getReason());
 
     }
