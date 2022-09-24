@@ -22,7 +22,12 @@ public class CurrencyController {
             @RequestParam("target") String target,
             @RequestParam("amount") double amount) {
 
+
+        //TODO: fix response to proper json and delegate also handling of errors to controller advise
         return currencyService.convert(source, target, amount);
     }
+
+
+
 
 }
