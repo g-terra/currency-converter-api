@@ -18,6 +18,8 @@ public class ExchangerateCurrencyExchangeProvider implements CurrencyExchangePro
     @Override
     public double getRate(String source, String target) {
 
+        //TODO: implement feature to validate provided source and target against the available Currencies.
+
         ResponseEntity<ExchangerateRateResponse> response = exchangerateClient.getRate(source, target);
 
         return extractTargetRateFromResponse(source, target, response);
