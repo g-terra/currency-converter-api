@@ -2,6 +2,7 @@ package com.awin.currencyconverter.client.exchangerate;
 
 import com.awin.currencyconverter.client.CurrencyExchangeProvider;
 import com.awin.currencyconverter.client.exception.CurrencyNotAvailableException;
+import com.awin.currencyconverter.client.exception.FailedToRetrieveAvailableCurrencies;
 import com.awin.currencyconverter.client.exception.FailedToRetrieveExchangeRateException;
 import com.awin.currencyconverter.client.exchangerate.responses.ExchangerateAvailableCurrenciesResponse;
 import com.awin.currencyconverter.client.exchangerate.responses.ExchangerateRateResponse;
@@ -19,7 +20,6 @@ public class ExchangerateCurrencyExchangeProvider implements CurrencyExchangePro
 
     private final ExchangerateClient exchangerateClient;
 
-
     @Override
     public double getRate(String source, String target) {
 
@@ -32,11 +32,26 @@ public class ExchangerateCurrencyExchangeProvider implements CurrencyExchangePro
 
     private void validateCurrencies(String source, String target) {
 
-        Map<String, ExchangerateAvailableCurrenciesResponse.Symbol> currencies = exchangerateClient.getAvailableCurrencies().getBody().getSymbols();
+        Map<String, ExchangerateAvailableCurrenciesResponse.Symbol> currencies = getAvailableCurrencies();
 
         if (!currencies.containsKey(source)) throw new CurrencyNotAvailableException(source);
 
         if (!currencies.containsKey(target)) throw new CurrencyNotAvailableException(target);
+    }
+
+    private Map<String, ExchangerateAvailableCurrenciesResponse.Symbol> getAvailableCurrencies() {
+
+        ResponseEntity<ExchangerateAvailableCurrenciesResponse> response = exchangerateClient.getAvailableCurrencies();
+
+        if (!response.getStatusCode().is2xxSuccessful())
+            throw new FailedToRetrieveAvailableCurrencies(response.getStatusCode().toString());
+
+        ExchangerateAvailableCurrenciesResponse availableCurrencies = response.getBody();
+
+        if (Objects.isNull(availableCurrencies))
+            throw new FailedToRetrieveAvailableCurrencies("Response is empty");
+
+        return availableCurrencies.getSymbols();
     }
 
     private Double extractTargetRateFromResponse(String source, String target, ResponseEntity<ExchangerateRateResponse> response) {

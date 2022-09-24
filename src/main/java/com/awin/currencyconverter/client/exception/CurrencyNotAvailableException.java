@@ -6,7 +6,6 @@ public class CurrencyNotAvailableException extends RuntimeException {
 
     public CurrencyNotAvailableException(String source) {
         super(String.format(MESSAGE, source));
-
     }
 
 }

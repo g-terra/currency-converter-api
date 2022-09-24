@@ -1,6 +1,7 @@
 package com.awin.currencyconverter.client.exchangerate;
 
 import com.awin.currencyconverter.client.exception.CurrencyNotAvailableException;
+import com.awin.currencyconverter.client.exception.FailedToRetrieveAvailableCurrencies;
 import com.awin.currencyconverter.client.exception.FailedToRetrieveExchangeRateException;
 import com.awin.currencyconverter.client.exchangerate.responses.ExchangerateRateResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,7 +15,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class ExchangerateCurrencyExchangeProviderTest {
@@ -26,11 +26,7 @@ class ExchangerateCurrencyExchangeProviderTest {
     @BeforeEach
     void setUp() {
         this.client = Mockito.mock(ExchangerateClient.class);
-
-        when(client.getAvailableCurrencies()).thenReturn(ExchangerateAvailableCurrenciesResponseFixture.get());
-
         this.provider = new ExchangerateCurrencyExchangeProvider(client);
-
     }
 
     @Test
@@ -42,6 +38,8 @@ class ExchangerateCurrencyExchangeProviderTest {
         Double expectedRate = 2d;
 
         //AND
+        when(client.getAvailableCurrencies()).thenReturn(ExchangerateAvailableCurrenciesResponseFixture.get200());
+        
         ExchangerateRateResponse mockResponse = ExchangerateRateResponse.builder()
                 .base(source)
                 .success(true)
@@ -52,7 +50,6 @@ class ExchangerateCurrencyExchangeProviderTest {
 
         //WHEN
         double actualRate = provider.getRate(source, target);
-
 
         //THEN
         assertEquals(expectedRate, actualRate);
@@ -68,6 +65,8 @@ class ExchangerateCurrencyExchangeProviderTest {
         Double expectedRate = 2d;
 
         //AND
+        when(client.getAvailableCurrencies()).thenReturn(ExchangerateAvailableCurrenciesResponseFixture.get200());
+        
         ExchangerateRateResponse mockResponse = ExchangerateRateResponse.builder()
                 .base(source)
                 .success(true)
@@ -83,7 +82,6 @@ class ExchangerateCurrencyExchangeProviderTest {
         assertEquals("Failed to retrieve exchange rate for EUR -> PLN.", ex.getMessage());
         assertEquals("Provider server returned :503 SERVICE_UNAVAILABLE", ex.getReason());
 
-
     }
 
 
@@ -98,12 +96,13 @@ class ExchangerateCurrencyExchangeProviderTest {
         expectedRates.put(target,null);
 
         //AND
+        when(client.getAvailableCurrencies()).thenReturn(ExchangerateAvailableCurrenciesResponseFixture.get200());
+        
         ExchangerateRateResponse mockResponse = ExchangerateRateResponse.builder()
                 .base(source)
                 .success(true)
                 .rates(expectedRates)
                 .build();
-
 
         //AND
         when(client.getRate(source, target)).thenReturn(ResponseEntity.status(HttpStatus.OK).body(mockResponse));
@@ -126,6 +125,7 @@ class ExchangerateCurrencyExchangeProviderTest {
         String target = "PLN";
 
         //AND
+        when(client.getAvailableCurrencies()).thenReturn(ExchangerateAvailableCurrenciesResponseFixture.get200());
         when(client.getRate(source, target)).thenReturn(ResponseEntity.status(HttpStatus.OK).body(null));
 
         //WHEN
@@ -145,6 +145,9 @@ class ExchangerateCurrencyExchangeProviderTest {
         //GIVEN
         String source = "INVALID";
         String target = "PLN";
+        
+        //AND
+        when(client.getAvailableCurrencies()).thenReturn(ExchangerateAvailableCurrenciesResponseFixture.get200());
 
         //WHEN
         CurrencyNotAvailableException ex = assertThrows(CurrencyNotAvailableException.class, () -> provider.getRate(source, target));
@@ -160,6 +163,9 @@ class ExchangerateCurrencyExchangeProviderTest {
         //GIVEN
         String source = "EUR";
         String target = "INVALID";
+        
+        //AND
+        when(client.getAvailableCurrencies()).thenReturn(ExchangerateAvailableCurrenciesResponseFixture.get200());
 
         //WHEN
         CurrencyNotAvailableException ex = assertThrows(CurrencyNotAvailableException.class, () -> provider.getRate(source, target));
@@ -169,6 +175,42 @@ class ExchangerateCurrencyExchangeProviderTest {
 
     }
 
+    @Test
+    void should_throw_exception_when_available_currencies_request_does_not_return_2xx() {
 
+        //GIVEN
+        String source = "EUR";
+        String target = "PLN";
+
+        //AND
+        when(client.getAvailableCurrencies()).thenReturn(ExchangerateAvailableCurrenciesResponseFixture.get500());
+
+        //WHEN
+        FailedToRetrieveAvailableCurrencies ex = assertThrows(FailedToRetrieveAvailableCurrencies.class, () -> provider.getRate(source, target));
+
+        //THEN
+        assertEquals("Failed to retrieve available currencies", ex.getMessage());
+        assertEquals("500 INTERNAL_SERVER_ERROR", ex.getReason());
+
+    }
+
+    @Test
+    void should_throw_exception_when_available_currencies_request_return_empty_body() {
+
+        //GIVEN
+        String source = "EUR";
+        String target = "PLN";
+
+        //AND
+        when(client.getAvailableCurrencies()).thenReturn(ExchangerateAvailableCurrenciesResponseFixture.emptyBody());
+
+        //WHEN
+        FailedToRetrieveAvailableCurrencies ex = assertThrows(FailedToRetrieveAvailableCurrencies.class, () -> provider.getRate(source, target));
+
+        //THEN
+        assertEquals("Failed to retrieve available currencies", ex.getMessage());
+        assertEquals("Response is empty", ex.getReason());
+
+    }
 
 }
