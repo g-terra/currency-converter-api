@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class CurrencyExchangingService implements CurrencyExchanger {
+public class CurrencyExchangingService implements ConversionService {
 
     private final CurrencyExchangeProvider currencyExchangeProvider;
 

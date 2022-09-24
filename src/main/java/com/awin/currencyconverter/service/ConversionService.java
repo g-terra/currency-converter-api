@@ -1,6 +1,6 @@
 package com.awin.currencyconverter.service;
 
-public interface CurrencyExchanger {
+public interface ConversionService {
 
     double convert(String source, String target, double amount);
 

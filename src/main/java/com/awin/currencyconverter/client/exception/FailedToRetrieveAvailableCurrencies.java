@@ -5,7 +5,7 @@ import lombok.Getter;
 @Getter
 public class FailedToRetrieveAvailableCurrencies extends RuntimeException {
 
-    private static final String MESSAGE = "Failed to retrieve available currencies";
+    private static final String MESSAGE = "Failed to retrieve available currencies.";
 
     private final String reason;
 
