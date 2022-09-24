@@ -1,13 +1,14 @@
 package com.awin.currencyconverter.client.exchangerate;
 
+import com.awin.currencyconverter.client.exception.CurrencyNotAvailableException;
 import com.awin.currencyconverter.client.exception.FailedToRetrieveExchangeRateException;
+import com.awin.currencyconverter.client.exchangerate.responses.ExchangerateRateResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.lang.annotation.Target;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -25,6 +26,9 @@ class ExchangerateCurrencyExchangeProviderTest {
     @BeforeEach
     void setUp() {
         this.client = Mockito.mock(ExchangerateClient.class);
+
+        when(client.getAvailableCurrencies()).thenReturn(ExchangerateAvailableCurrenciesResponseFixture.get());
+
         this.provider = new ExchangerateCurrencyExchangeProvider(client);
 
     }
@@ -132,6 +136,39 @@ class ExchangerateCurrencyExchangeProviderTest {
         assertEquals("Empty response", ex.getReason());
 
     }
+
+
+
+    @Test
+    void should_throw_exception_when_source_is_NOT_available() {
+
+        //GIVEN
+        String source = "INVALID";
+        String target = "PLN";
+
+        //WHEN
+        CurrencyNotAvailableException ex = assertThrows(CurrencyNotAvailableException.class, () -> provider.getRate(source, target));
+
+        //THEN
+        assertEquals("INVALID is not an available currency", ex.getMessage());
+
+    }
+
+    @Test
+    void should_throw_exception_when_target_is_NOT_available() {
+
+        //GIVEN
+        String source = "EUR";
+        String target = "INVALID";
+
+        //WHEN
+        CurrencyNotAvailableException ex = assertThrows(CurrencyNotAvailableException.class, () -> provider.getRate(source, target));
+
+        //THEN
+        assertEquals("INVALID is not an available currency", ex.getMessage());
+
+    }
+
 
 
 }

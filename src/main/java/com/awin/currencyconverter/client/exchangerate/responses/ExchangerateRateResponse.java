@@ -1,4 +1,4 @@
-package com.awin.currencyconverter.client.exchangerate;
+package com.awin.currencyconverter.client.exchangerate.responses;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
