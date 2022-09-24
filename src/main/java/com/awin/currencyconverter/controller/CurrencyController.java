@@ -1,6 +1,6 @@
 package com.awin.currencyconverter.controller;
 
-import com.awin.currencyconverter.service.CurrencyExchanger;
+import com.awin.currencyconverter.service.ConversionService;
 import org.springframework.http.MediaType;
 
 import org.springframework.validation.annotation.Validated;
@@ -16,9 +16,9 @@ import javax.validation.constraints.Positive;
 @Validated
 public class CurrencyController {
 
-    private final CurrencyExchanger currencyService;
+    private final ConversionService currencyService;
 
-    public CurrencyController(final CurrencyExchanger currencyService) {
+    public CurrencyController(final ConversionService currencyService) {
         this.currencyService = currencyService;
     }
 
