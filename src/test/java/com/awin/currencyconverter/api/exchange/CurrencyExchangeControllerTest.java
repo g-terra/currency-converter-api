@@ -222,7 +222,7 @@ class CurrencyExchangeControllerTest {
         //WHEN+THEN
         when(currencyExchangeProvider.getCurrencies()).thenReturn(Map.of("EUR", "Euro"));
 
-        this.mockMvc.perform(get("/currencies/currencies"))
+        this.mockMvc.perform(get("/currencies"))
                 .andExpect(status().isOk())
                 .andExpect(
                         jsonPath("$.availableCurrencies").value(hasSize(1))
@@ -243,7 +243,7 @@ class CurrencyExchangeControllerTest {
         when(currencyExchangeProvider.getCurrencies()).thenThrow(new FailedToRetrieveAvailableCurrencies("test"));
 
 
-        this.mockMvc.perform(get("/currencies/currencies"))
+        this.mockMvc.perform(get("/currencies"))
                 .andExpect(status().isBadRequest())
                 .andExpect(
                         jsonPath("$.message")
@@ -261,7 +261,7 @@ class CurrencyExchangeControllerTest {
         when(currencyExchangeProvider.getCurrencies()).thenThrow(new RuntimeException("test"));
 
 
-        this.mockMvc.perform(get("/currencies/currencies"))
+        this.mockMvc.perform(get("/currencies"))
                 .andExpect(status().isInternalServerError())
                 .andExpect(
                         jsonPath("$.message")
