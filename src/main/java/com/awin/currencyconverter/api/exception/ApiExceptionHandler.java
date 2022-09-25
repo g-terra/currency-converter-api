@@ -1,9 +1,10 @@
-package com.awin.currencyconverter.controller.exception;
+package com.awin.currencyconverter.api.exception;
 
 import com.awin.currencyconverter.client.exception.CurrencyNotAvailableException;
 import com.awin.currencyconverter.client.exception.FailedToRetrieveAvailableCurrencies;
 import com.awin.currencyconverter.client.exception.FailedToRetrieveExchangeRateException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -61,6 +62,14 @@ public class ApiExceptionHandler {
     public ApiError failedToRetrieveAvailableCurrencies(FailedToRetrieveAvailableCurrencies ex) {
         String message = String.format("%sReason: %s", ex.getMessage(), ex.getReason());
         return apiErrorProcessor.processException("Failed to retrieve available currencies", BAD_REQUEST, message);
+    }
+
+
+    @ResponseStatus(BAD_REQUEST)
+    @ResponseBody
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ApiError missingServletRequestParameterException(MissingServletRequestParameterException ex) {
+        return apiErrorProcessor.processException("Missing parameters", BAD_REQUEST, ex.getMessage());
     }
 
 }

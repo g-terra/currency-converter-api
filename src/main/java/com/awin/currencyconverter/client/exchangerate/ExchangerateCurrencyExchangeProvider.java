@@ -14,6 +14,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import static com.awin.currencyconverter.client.exchangerate.responses.ExchangerateAvailableCurrenciesResponse.*;
+
 @Service
 @RequiredArgsConstructor
 public class ExchangerateCurrencyExchangeProvider implements CurrencyExchangeProvider {
@@ -32,14 +34,15 @@ public class ExchangerateCurrencyExchangeProvider implements CurrencyExchangePro
 
     private void validateCurrencies(String source, String target) {
 
-        Map<String, ExchangerateAvailableCurrenciesResponse.Symbol> currencies = getAvailableCurrencies();
+        Map<String, Symbol> currencies = getAvailableCurrencies();
 
         if (!currencies.containsKey(source)) throw new CurrencyNotAvailableException(source);
 
         if (!currencies.containsKey(target)) throw new CurrencyNotAvailableException(target);
     }
 
-    private Map<String, ExchangerateAvailableCurrenciesResponse.Symbol> getAvailableCurrencies() {
+    private Map<String, Symbol> getAvailableCurrencies() {
+
 
         ResponseEntity<ExchangerateAvailableCurrenciesResponse> response = exchangerateClient.getAvailableCurrencies();
 
@@ -52,6 +55,8 @@ public class ExchangerateCurrencyExchangeProvider implements CurrencyExchangePro
             throw new FailedToRetrieveAvailableCurrencies("Response is empty");
 
         return availableCurrencies.getSymbols();
+
+
     }
 
     private Double extractTargetRateFromResponse(String source, String target, ResponseEntity<ExchangerateRateResponse> response) {

@@ -1,4 +1,4 @@
-package com.awin.currencyconverter.controller;
+package com.awin.currencyconverter.api.exchange;
 
 import com.awin.currencyconverter.client.CurrencyExchangeProvider;
 import com.awin.currencyconverter.client.exception.CurrencyNotAvailableException;
@@ -22,7 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class CurrencyControllerTest {
+class CurrencyExchangeControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -44,12 +44,14 @@ class CurrencyControllerTest {
         when(currencyExchangeProvider.getRate(source, target)).thenReturn(rate);
 
         //WHEN+THEN
-        this.mockMvc.perform(get(String.format("/currencies/convert?source=%s&target=%s&amount=%s", source, target, amount))).andExpect(status().isOk()).andExpect(content().string(new AssertionMatcher<>() {
-            @Override
-            public void assertion(String value) throws AssertionError {
-                assertThat(parseDouble(value)).isEqualTo(expected);
-            }
-        }));
+        this.mockMvc.perform(get(String.format("/currencies/convert?source=%s&target=%s&amount=%s", source, target, amount)))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.target").value(target))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.source").value(source))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.amount").value(amount))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.rate").value(rate))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.converted").value(expected));
+
     }
 
     @Test
@@ -65,13 +67,13 @@ class CurrencyControllerTest {
         //AND
         when(currencyExchangeProvider.getRate(source, target)).thenReturn(rate);
 
-        //WHEN+THEN
-        this.mockMvc.perform(get(String.format("/currencies/convert?source=%s&target=%s&amount=%s", source, target, amount))).andExpect(status().isOk()).andExpect(content().string(new AssertionMatcher<>() {
-            @Override
-            public void assertion(String value) throws AssertionError {
-                assertThat(parseDouble(value)).isEqualTo(expected);
-            }
-        }));
+        this.mockMvc.perform(get(String.format("/currencies/convert?source=%s&target=%s&amount=%s", source, target, amount)))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.target").value(target))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.source").value(source))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.amount").value(amount))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.rate").value(rate))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.converted").value(expected));
     }
 
     @Test
@@ -88,6 +90,16 @@ class CurrencyControllerTest {
     void should_return_error_when_amount_is_negative() throws Exception {
         //WHEN+THEN
         this.mockMvc.perform(get("/currencies/convert?source=EUR&target=PLN&amount=-1"))
+                .andExpect(status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.subErrors[0].path").value("convert.amount"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.subErrors[0].message").value("amount must be a positive number"));
+
+    }
+
+    @Test
+    void should_return_error_when_amount_is_zero() throws Exception {
+        //WHEN+THEN
+        this.mockMvc.perform(get("/currencies/convert?source=EUR&target=PLN&amount=0"))
                 .andExpect(status().isBadRequest())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.subErrors[0].path").value("convert.amount"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.subErrors[0].message").value("amount must be a positive number"));
@@ -169,6 +181,36 @@ class CurrencyControllerTest {
                         MockMvcResultMatchers.jsonPath("$.message")
                                 .value("Failed to retrieve available currencies.Reason: test")
                 );
+
+    }
+
+
+    @Test
+    void should_return_ApiError_when_query_parameters_are_missing() throws Exception {
+
+
+        this.mockMvc.perform(get("/currencies/convert"))
+                .andExpect(status().isBadRequest())
+                .andExpect(
+                        MockMvcResultMatchers.jsonPath("$.message")
+                                .value("Required request parameter 'source' for method parameter type String is not present")
+                );
+
+        this.mockMvc.perform(get("/currencies/convert?source=test"))
+                .andExpect(status().isBadRequest())
+                .andExpect(
+                        MockMvcResultMatchers.jsonPath("$.message")
+                                .value("Required request parameter 'target' for method parameter type String is not present")
+                );
+
+
+        this.mockMvc.perform(get("/currencies/convert?source=test&target=test"))
+                .andExpect(status().isBadRequest())
+                .andExpect(
+                        MockMvcResultMatchers.jsonPath("$.message")
+                                .value("Required request parameter 'amount' for method parameter type double is not present")
+                );
+
 
     }
 
