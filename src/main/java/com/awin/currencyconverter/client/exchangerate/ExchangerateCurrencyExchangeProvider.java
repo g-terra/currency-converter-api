@@ -7,6 +7,7 @@ import com.awin.currencyconverter.client.exception.FailedToRetrieveExchangeRateE
 import com.awin.currencyconverter.client.exchangerate.responses.ExchangerateAvailableCurrenciesResponse;
 import com.awin.currencyconverter.client.exchangerate.responses.ExchangerateRateResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -19,12 +20,15 @@ import static com.awin.currencyconverter.client.exchangerate.responses.Exchanger
 
 @Service
 @RequiredArgsConstructor
+@Log4j2
 public class ExchangerateCurrencyExchangeProvider implements CurrencyExchangeProvider {
 
     private final ExchangerateClient exchangerateClient;
 
     @Override
     public double getRate(String source, String target) {
+
+        log.info("Requesting rate for source:{} and target {}", source,target);
 
         validateCurrencies(source, target);
 
@@ -35,6 +39,11 @@ public class ExchangerateCurrencyExchangeProvider implements CurrencyExchangePro
 
     @Override
     public Map<String, String> getCurrencies() {
+
+
+        log.info("Requesting all currencies");
+
+
 
         Map<String, Symbol> availableCurrencies = getAvailableCurrencies();
 

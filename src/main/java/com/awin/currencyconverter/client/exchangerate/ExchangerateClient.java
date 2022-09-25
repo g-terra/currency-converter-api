@@ -7,11 +7,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-//TODO: move url config to application properties
 @FeignClient(
         value = "ExchangerateClient",
         contextId="ExchangerateClientId" ,
-        url = "https://api.exchangerate.host/"
+        url = "${exchangerate.url}"
 )
 public interface ExchangerateClient {
 

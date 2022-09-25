@@ -1,0 +1,8 @@
+{
+  "properties": [
+    {
+      "name": "exchangerate.url",
+      "type": "java.lang.String",
+      "description": "Url for using services of exchangerate"
+  }
+] }
