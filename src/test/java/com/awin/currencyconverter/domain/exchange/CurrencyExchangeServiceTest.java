@@ -5,6 +5,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.util.Map;
+
 import static com.awin.currencyconverter.domain.exchange.CurrencyExchangeServiceRequests.*;
 import static com.awin.currencyconverter.domain.exchange.CurrencyExchangeServiceRequests.CurrencyConversionDetails.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -18,13 +20,13 @@ class CurrencyExchangeServiceTest {
 
     @BeforeEach
     void setUp() {
-        currencyExchangeProvider =  Mockito.mock(CurrencyExchangeProvider.class);
+        currencyExchangeProvider = Mockito.mock(CurrencyExchangeProvider.class);
 
         currencyExchangeService = new CurrencyExchangeService(currencyExchangeProvider);
     }
 
     @Test
-    void should_convert(){
+    void should_convert() {
         //GIVEN:
         String source = "EUR";
         String target = "PLN";
@@ -38,13 +40,25 @@ class CurrencyExchangeServiceTest {
                 .source(source)
                 .build();
 
-        when(currencyExchangeProvider.getRate(source,target)).thenReturn(expectedRate);
+        when(currencyExchangeProvider.getRate(source, target)).thenReturn(expectedRate);
 
         //WHEN
         CurrencyConversion convert = currencyExchangeService.convert(details);
 
+        //THEN
+        assertEquals(expectedConversion, convert.getConverted());
+    }
+
+    @Test
+    void should_return_all_currencies() {
+        //GIVEN:
+        when(currencyExchangeProvider.getCurrencies()).thenReturn(Map.of("EUR", "Euro"));
+        
+        //WHEN
+        Currencies currencies = currencyExchangeService.getCurrencies();
 
         //THEN
-        assertEquals(expectedConversion , convert.getConverted() );
+        assertEquals(1,currencies.availableCurrencies.size());
+        assertTrue(currencies.availableCurrencies.stream().anyMatch(c -> c.getCode().equals("EUR")));
     }
 }
