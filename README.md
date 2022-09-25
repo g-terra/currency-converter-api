@@ -23,3 +23,9 @@ Tasks:
 
 
 Good luck!
+
+# DEVELOPER NOTES
+
+For testing, feel free to use http://localhost:8080/swagger-ui/index.html#/
+
+
