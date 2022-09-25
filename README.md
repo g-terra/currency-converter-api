@@ -28,4 +28,11 @@ Good luck!
 
 For testing, feel free to use http://localhost:8080/swagger-ui/index.html#/
 
+For verifying the development of the solutions, refer to https://github.com/g-terra/currency-converter-api
+
+## Possible Features that should be added on the future
+
+- average rating to a daily level
+- fall back service in case of main exchange provider is down
+
 
