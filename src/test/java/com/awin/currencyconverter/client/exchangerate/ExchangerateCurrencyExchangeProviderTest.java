@@ -151,12 +151,12 @@ class ExchangerateCurrencyExchangeProviderTest {
     void should_return_map_with_available_currencies() {
 
         //GIVEN
-        int expectedAvailableCurrenciesCount = 2;
+        int expectedAvailableCurrenciesCountOnFixture = 3;
         when(client.getAvailableCurrencies()).thenReturn(ExchangerateClientResponseFixture.availableCurrencies200());
 
 
         //WHEN+THEN
-        assertEquals(expectedAvailableCurrenciesCount, provider.getCurrencies().size());
+        assertEquals(expectedAvailableCurrenciesCountOnFixture, provider.getCurrencies().size());
         assertTrue(provider.getCurrencies().containsKey("EUR"));
         assertTrue(provider.getCurrencies().containsKey("PLN"));
     }

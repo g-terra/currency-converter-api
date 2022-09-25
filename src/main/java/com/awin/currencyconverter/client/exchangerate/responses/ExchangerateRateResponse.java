@@ -1,9 +1,6 @@
 package com.awin.currencyconverter.client.exchangerate.responses;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Map;
 import java.util.Optional;
@@ -16,6 +13,7 @@ public class ExchangerateRateResponse {
 
      private boolean success;
      private String base;
+     @Singular
      private Map<String,Double> rates;
 
      public Optional<Double> getRate(String target){

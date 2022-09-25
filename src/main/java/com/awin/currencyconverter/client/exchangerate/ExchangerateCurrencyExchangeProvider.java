@@ -8,9 +8,11 @@ import com.awin.currencyconverter.client.exchangerate.responses.ExchangerateAvai
 import com.awin.currencyconverter.client.exchangerate.responses.ExchangerateRateResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -28,13 +30,20 @@ public class ExchangerateCurrencyExchangeProvider implements CurrencyExchangePro
     @Override
     public double getRate(String source, String target) {
 
-        log.info("Requesting rate for source:{} and target {}", source,target);
+        return getRates(source,List.of(target)).get(target);
+    }
 
-        validateCurrencies(source, target);
+    @Override
+    public Map<String, Double> getRates(String source, List<String> targets) {
 
-        ResponseEntity<ExchangerateRateResponse> response = exchangerateClient.getRate(source, target);
+        log.info("Requesting rate for source:{} and target(s) {}", source, targets);
 
-        return extractTargetRateFromResponse(source, target, response);
+        validateCurrencies(source, targets);
+
+
+        ResponseEntity<ExchangerateRateResponse> response = exchangerateClient.getRate(source, StringUtils.join(targets, ","));
+
+        return extractTargetRateFromResponse(source, targets, response);
     }
 
     @Override
@@ -44,7 +53,6 @@ public class ExchangerateCurrencyExchangeProvider implements CurrencyExchangePro
         log.info("Requesting all currencies");
 
 
-
         Map<String, Symbol> availableCurrencies = getAvailableCurrencies();
 
         return availableCurrencies.keySet()
@@ -52,13 +60,15 @@ public class ExchangerateCurrencyExchangeProvider implements CurrencyExchangePro
                 .collect(Collectors.toMap(k -> k, k -> availableCurrencies.get(k).getDescription()));
     }
 
-    private void validateCurrencies(String source, String target) {
+    private void validateCurrencies(String source, List<String> targets) {
 
         Map<String, Symbol> currencies = getAvailableCurrencies();
 
         if (!currencies.containsKey(source)) throw new CurrencyNotAvailableException(source);
 
-        if (!currencies.containsKey(target)) throw new CurrencyNotAvailableException(target);
+        Optional<String> invalidCurrency = targets.stream().filter(t -> !currencies.containsKey(t)).findFirst();
+
+        if (invalidCurrency.isPresent()) throw new CurrencyNotAvailableException(invalidCurrency.get());
     }
 
     private Map<String, Symbol> getAvailableCurrencies() {
@@ -79,18 +89,16 @@ public class ExchangerateCurrencyExchangeProvider implements CurrencyExchangePro
 
     }
 
-    private Double extractTargetRateFromResponse(String source, String target, ResponseEntity<ExchangerateRateResponse> response) {
+    private Map<String, Double> extractTargetRateFromResponse(String source, List<String> targets, ResponseEntity<ExchangerateRateResponse> response) {
 
         if (!response.getStatusCode().is2xxSuccessful())
-            throw new FailedToRetrieveExchangeRateException(source, target, String.format("Provider server returned :%s", response.getStatusCode()));
+            throw new FailedToRetrieveExchangeRateException(source, StringUtils.join(targets ,',') , String.format("Provider server returned :%s", response.getStatusCode()));
 
         ExchangerateRateResponse rate = response.getBody();
 
-        if (Objects.isNull(rate)) throw new FailedToRetrieveExchangeRateException(source, target, "Empty response");
+        if (Objects.isNull(rate)) throw new FailedToRetrieveExchangeRateException(source, StringUtils.join( targets ,','), "Empty response");
 
-        Optional<Double> exchange = rate.getRate(target);
-
-        return exchange.orElseThrow(() -> new FailedToRetrieveExchangeRateException(source, target, String.format("Response has null rate for %s", target)));
+        return rate.getRates();
     }
 
 }
