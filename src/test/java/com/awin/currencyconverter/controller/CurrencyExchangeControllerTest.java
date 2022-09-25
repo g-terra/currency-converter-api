@@ -22,7 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class CurrencyControllerTest {
+class CurrencyExchangeControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -44,12 +44,14 @@ class CurrencyControllerTest {
         when(currencyExchangeProvider.getRate(source, target)).thenReturn(rate);
 
         //WHEN+THEN
-        this.mockMvc.perform(get(String.format("/currencies/convert?source=%s&target=%s&amount=%s", source, target, amount))).andExpect(status().isOk()).andExpect(content().string(new AssertionMatcher<>() {
-            @Override
-            public void assertion(String value) throws AssertionError {
-                assertThat(parseDouble(value)).isEqualTo(expected);
-            }
-        }));
+        this.mockMvc.perform(get(String.format("/currencies/convert?source=%s&target=%s&amount=%s", source, target, amount)))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.target").value(target))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.source").value(source))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.amount").value(amount))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.rate").value(rate))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.converted").value(expected));
+
     }
 
     @Test
@@ -65,13 +67,13 @@ class CurrencyControllerTest {
         //AND
         when(currencyExchangeProvider.getRate(source, target)).thenReturn(rate);
 
-        //WHEN+THEN
-        this.mockMvc.perform(get(String.format("/currencies/convert?source=%s&target=%s&amount=%s", source, target, amount))).andExpect(status().isOk()).andExpect(content().string(new AssertionMatcher<>() {
-            @Override
-            public void assertion(String value) throws AssertionError {
-                assertThat(parseDouble(value)).isEqualTo(expected);
-            }
-        }));
+        this.mockMvc.perform(get(String.format("/currencies/convert?source=%s&target=%s&amount=%s", source, target, amount)))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.target").value(target))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.source").value(source))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.amount").value(amount))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.rate").value(rate))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.converted").value(expected));
     }
 
     @Test

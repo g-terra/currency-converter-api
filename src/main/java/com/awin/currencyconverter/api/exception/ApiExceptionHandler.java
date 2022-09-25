@@ -1,4 +1,4 @@
-package com.awin.currencyconverter.controller.exception;
+package com.awin.currencyconverter.api.exception;
 
 import com.awin.currencyconverter.client.exception.CurrencyNotAvailableException;
 import com.awin.currencyconverter.client.exception.FailedToRetrieveAvailableCurrencies;

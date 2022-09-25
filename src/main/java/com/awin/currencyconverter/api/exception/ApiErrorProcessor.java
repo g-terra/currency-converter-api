@@ -1,4 +1,4 @@
-package com.awin.currencyconverter.controller.exception;
+package com.awin.currencyconverter.api.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;

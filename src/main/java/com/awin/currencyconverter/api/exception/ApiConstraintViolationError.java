@@ -1,4 +1,4 @@
-package com.awin.currencyconverter.controller.exception;
+package com.awin.currencyconverter.api.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

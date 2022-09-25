@@ -8,7 +8,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 //TODO: move url config to application properties
-@FeignClient(value = "ExchangerateClient", url = "https://api.exchangerate.host/")
+@FeignClient(
+        value = "ExchangerateClient",
+        contextId="ExchangerateClientId" ,
+        url = "https://api.exchangerate.host/"
+)
 public interface ExchangerateClient {
 
     @GetMapping(value = "/latest?base={source}&symbols={target}")
