@@ -34,7 +34,7 @@ class ExchangerateCurrencyExchangeProviderTest {
 
         //AND
         when(client.getAvailableCurrencies()).thenReturn(ExchangerateClientResponseFixture.availableCurrencies200());
-        when(client.getRate(source,target)).thenReturn(ExchangerateClientResponseFixture.rateWithStatus200(expectedRate));
+        when(client.getRate(source, target)).thenReturn(ExchangerateClientResponseFixture.rateWithStatus200(expectedRate));
 
         //WHEN
         double actualRate = provider.getRate(source, target);
@@ -76,7 +76,6 @@ class ExchangerateCurrencyExchangeProviderTest {
 
     }
 
-
     @Test
     void should_throw_FailedToRetrieveExchangeRateException_when_client_response_is_empty() {
 
@@ -113,16 +112,15 @@ class ExchangerateCurrencyExchangeProviderTest {
         assertEquals("404 NOT_FOUND", ex.getReason());
     }
 
-
     @Test
-    void should_throw_FailedToRetrieveAvailableCurrencies_when_rate_request_returns_404() {
+    void should_throw_FailedToRetrieveExchangeRateException_when_rate_request_returns_404() {
 
         //GIVEN
         String source = "EUR";
         String target = "PLN";
 
         when(client.getAvailableCurrencies()).thenReturn(ExchangerateClientResponseFixture.availableCurrencies200());
-        when(client.getRate(source,target)).thenReturn(ExchangerateClientResponseFixture.rateWithStatus404());
+        when(client.getRate(source, target)).thenReturn(ExchangerateClientResponseFixture.rateWithStatus404());
 
         //WHEN
         FailedToRetrieveExchangeRateException ex = assertThrows(FailedToRetrieveExchangeRateException.class, () -> provider.getRate(source, target));
@@ -149,7 +147,28 @@ class ExchangerateCurrencyExchangeProviderTest {
         assertEquals("Response is empty", ex.getReason());
     }
 
+    @Test
+    void should_return_map_with_available_currencies() {
 
+        //GIVEN
+        int expectedAvailableCurrenciesCount = 2;
+        when(client.getAvailableCurrencies()).thenReturn(ExchangerateClientResponseFixture.availableCurrencies200());
+
+
+        //WHEN+THEN
+        assertEquals(expectedAvailableCurrenciesCount, provider.getCurrencies().size());
+        assertTrue(provider.getCurrencies().containsKey("EUR"));
+        assertTrue(provider.getCurrencies().containsKey("PLN"));
+    }
+
+    @Test
+    void should_throw_FailedToRetrieveAvailableCurrencies_when_get_available_currencies_request_returns_404() {
+        //GIVEN
+        when(client.getAvailableCurrencies()).thenReturn(ExchangerateClientResponseFixture.availableCurrencies404());
+
+        //WHEN+THEN
+        assertThrows(FailedToRetrieveAvailableCurrencies.class , ()->provider.getCurrencies());
+    }
 
 
 }

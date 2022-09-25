@@ -1,14 +1,12 @@
 package com.awin.currencyconverter.api.exchange;
 
+import com.awin.currencyconverter.domain.exchange.Currencies;
 import com.awin.currencyconverter.domain.exchange.CurrencyConversion;
 import com.awin.currencyconverter.domain.exchange.CurrencyExchange;
 import org.springframework.http.MediaType;
 
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
@@ -18,6 +16,7 @@ import static com.awin.currencyconverter.domain.exchange.CurrencyExchangeService
 
 @RestController
 @Validated
+@RequestMapping("currencies")
 public class CurrencyExchangeController {
 
     private final CurrencyExchange currencyService;
@@ -26,7 +25,15 @@ public class CurrencyExchangeController {
         this.currencyService = currencyService;
     }
 
-    @GetMapping(value = "currencies/convert", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public CurrenciesResponse getCurrencies() {
+
+        Currencies currencies = currencyService.getCurrencies();
+
+        return CurrenciesResponse.from(currencies);
+    }
+
+    @GetMapping(value = "/convert", produces = MediaType.APPLICATION_JSON_VALUE)
     public CurrencyConversionResponse convert(
             @Valid @NotBlank(message = "source must not be empty") @RequestParam("source") String source,
             @Valid @NotBlank(message = "target must not be empty") @RequestParam("target") String target,
@@ -44,8 +51,6 @@ public class CurrencyExchangeController {
         return CurrencyConversionResponse.from(currencyConversion);
     }
 
-
-    //TODO: introduce endpoint for getting available currencies
 
 
 }

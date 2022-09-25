@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.awin.currencyconverter.client.exchangerate.responses.ExchangerateAvailableCurrenciesResponse.*;
 
@@ -30,6 +31,16 @@ public class ExchangerateCurrencyExchangeProvider implements CurrencyExchangePro
         ResponseEntity<ExchangerateRateResponse> response = exchangerateClient.getRate(source, target);
 
         return extractTargetRateFromResponse(source, target, response);
+    }
+
+    @Override
+    public Map<String, String> getCurrencies() {
+
+        Map<String, Symbol> availableCurrencies = getAvailableCurrencies();
+
+        return availableCurrencies.keySet()
+                .stream()
+                .collect(Collectors.toMap(k -> k, k -> availableCurrencies.get(k).getDescription()));
     }
 
     private void validateCurrencies(String source, String target) {

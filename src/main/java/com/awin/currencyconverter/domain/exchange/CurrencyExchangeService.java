@@ -4,6 +4,10 @@ import com.awin.currencyconverter.client.CurrencyExchangeProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.awin.currencyconverter.domain.exchange.Currencies.*;
 import static com.awin.currencyconverter.domain.exchange.CurrencyExchangeServiceRequests.*;
 
 @Service
@@ -20,6 +24,18 @@ public class CurrencyExchangeService implements CurrencyExchange {
         );
 
         return convert(currencyConversionDetails, rate);
+    }
+
+    @Override
+    public Currencies getCurrencies() {
+
+        List<Currency> collect = currencyExchangeProvider.getCurrencies()
+                .entrySet()
+                .stream()
+                .map(e -> new Currency(e.getKey(), e.getValue()))
+                .collect(Collectors.toList());
+
+        return Currencies.builder().availableCurrencies(collect).build();
     }
 
     private CurrencyConversion convert(CurrencyConversionDetails currencyConversionDetails, double rate) {
