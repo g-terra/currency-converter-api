@@ -44,7 +44,7 @@ public class CurrencyExchangeController {
         return CurrencyConversionResponse.from(currencyConversion);
     }
 
-    
+
     //TODO: introduce endpoint for getting available currencies
 
 
