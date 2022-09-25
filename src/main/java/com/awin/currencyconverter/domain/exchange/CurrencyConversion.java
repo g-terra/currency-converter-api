@@ -10,7 +10,7 @@ public class CurrencyConversion {
 
     @NonNull private String target;
     @NonNull private String source;
-    @NonNull private double amount;
-    @NonNull private double rate;
-    @NonNull private double converted;
+    private double amount;
+    private double rate;
+    private double converted;
 }

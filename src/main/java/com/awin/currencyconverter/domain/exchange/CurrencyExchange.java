@@ -6,4 +6,5 @@ public interface CurrencyExchange {
 
     CurrencyConversion convert(CurrencyConversionDetails conversionDetails);
 
+    Currencies getCurrencies();
 }

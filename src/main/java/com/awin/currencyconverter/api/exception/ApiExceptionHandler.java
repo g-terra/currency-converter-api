@@ -16,16 +16,21 @@ import javax.validation.ConstraintViolationException;
 import java.util.Set;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
-/**
- * Global exception handler for API.
- */
 @ControllerAdvice
 @RequiredArgsConstructor
 public class ApiExceptionHandler {
 
     private final ApiErrorProcessor apiErrorProcessor;
 
+    @ResponseStatus(INTERNAL_SERVER_ERROR)
+    @ResponseBody
+    @ExceptionHandler(Exception.class)
+    public ApiError exception(Exception ex) {
+        return apiErrorProcessor.processException("Unexpected error", INTERNAL_SERVER_ERROR, ex.getMessage());
+    }
+    
     @ResponseStatus(BAD_REQUEST)
     @ResponseBody
     @ExceptionHandler(ConstraintViolationException.class)
@@ -71,5 +76,7 @@ public class ApiExceptionHandler {
     public ApiError missingServletRequestParameterException(MissingServletRequestParameterException ex) {
         return apiErrorProcessor.processException("Missing parameters", BAD_REQUEST, ex.getMessage());
     }
+
+
 
 }
