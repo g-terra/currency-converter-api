@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor
-@NoArgsConstructor
 @Builder
 @Getter
 public class CurrenciesResponse {

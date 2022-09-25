@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.util.List;
 import java.util.Map;
 
 import static com.awin.currencyconverter.domain.exchange.CurrencyExchangeServiceRequests.*;
@@ -60,5 +61,39 @@ class CurrencyExchangeServiceTest {
         //THEN
         assertEquals(1,currencies.availableCurrencies.size());
         assertTrue(currencies.availableCurrencies.stream().anyMatch(c -> c.getCode().equals("EUR")));
+    }
+
+    @Test
+    void should_return_conversion_from_multiple_currencies() {
+        //GIVEN:
+        String source = "EUR";
+        List<String> targets = List.of("PLN","USD");
+        double amount = 2d;
+        Double expectedRatePLN = 2d;
+        Double expectedRateUSD = 3d;
+        Double expectedConversionPLN = 4d;
+        Double expectedConversionUSD = 6d;
+
+        MultiCurrencyConversionDetails details = MultiCurrencyConversionDetails.builder()
+                .target("PLN")
+                .target("USD")
+                .amount(amount)
+                .source(source)
+                .build();
+
+
+        Map<String, Double> rates = Map.of("PLN", expectedRatePLN, "USD", expectedRateUSD);
+
+        when(currencyExchangeProvider.getRates(source, targets)).thenReturn(rates);
+
+        //WHEN
+        MultiCurrencyConversion conversions = currencyExchangeService.multiConvert(details);
+
+        //THEN
+        assertEquals(2, conversions.getConversions().size());
+        assertEquals(expectedConversionPLN, conversions.getConversions().get("PLN"));
+        assertEquals(expectedConversionUSD, conversions.getConversions().get("USD"));
+        assertEquals(expectedRatePLN, conversions.getRates().get("PLN"));
+        assertEquals(expectedRateUSD, conversions.getRates().get("USD"));
     }
 }

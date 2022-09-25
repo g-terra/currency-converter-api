@@ -14,7 +14,20 @@ public class ExchangerateClientResponseFixture {
         ExchangerateRateResponse fixture = ExchangerateRateResponse.builder()
                 .base("EUR")
                 .success(true)
-                .rates(Map.of("PLN", 2d))
+                .rates(Map.of("PLN", expectedRate))
+                .build();
+
+        return ResponseEntity.ok(fixture);
+
+    }
+
+    public static ResponseEntity<ExchangerateRateResponse> multiRateWithStatus200(Double expectedRatePLN, Double expectedRateUSD ) {
+
+        ExchangerateRateResponse fixture = ExchangerateRateResponse.builder()
+                .base("EUR")
+                .success(true)
+                .rate("PLN", expectedRatePLN)
+                .rate("USD", expectedRateUSD)
                 .build();
 
         return ResponseEntity.ok(fixture);
@@ -38,6 +51,7 @@ public class ExchangerateClientResponseFixture {
                 .success(true)
                 .symbol("PLN", new ExchangerateAvailableCurrenciesResponse.Symbol("Polish Zloty", "PLN"))
                 .symbol("EUR", new ExchangerateAvailableCurrenciesResponse.Symbol("Euro", "EUR"))
+                .symbol("USD", new ExchangerateAvailableCurrenciesResponse.Symbol("Dollar", "USD"))
                 .build();
 
         return ResponseEntity.ok(response);
