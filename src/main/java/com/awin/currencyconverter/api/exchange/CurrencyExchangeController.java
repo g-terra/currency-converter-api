@@ -6,6 +6,7 @@ import org.springframework.http.MediaType;
 
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -43,6 +44,7 @@ public class CurrencyExchangeController {
         return CurrencyConversionResponse.from(currencyConversion);
     }
 
+    
     //TODO: introduce endpoint for getting available currencies
 
 

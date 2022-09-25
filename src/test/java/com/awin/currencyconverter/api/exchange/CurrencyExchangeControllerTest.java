@@ -1,4 +1,4 @@
-package com.awin.currencyconverter.controller;
+package com.awin.currencyconverter.api.exchange;
 
 import com.awin.currencyconverter.client.CurrencyExchangeProvider;
 import com.awin.currencyconverter.client.exception.CurrencyNotAvailableException;
@@ -97,6 +97,16 @@ class CurrencyExchangeControllerTest {
     }
 
     @Test
+    void should_return_error_when_amount_is_zero() throws Exception {
+        //WHEN+THEN
+        this.mockMvc.perform(get("/currencies/convert?source=EUR&target=PLN&amount=0"))
+                .andExpect(status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.subErrors[0].path").value("convert.amount"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.subErrors[0].message").value("amount must be a positive number"));
+
+    }
+
+    @Test
     void should_return_error_when_source_is_empty() throws Exception {
         //WHEN+THEN
         this.mockMvc.perform(get("/currencies/convert?source=&target=PLN&amount=1"))
@@ -171,6 +181,36 @@ class CurrencyExchangeControllerTest {
                         MockMvcResultMatchers.jsonPath("$.message")
                                 .value("Failed to retrieve available currencies.Reason: test")
                 );
+
+    }
+
+
+    @Test
+    void should_return_ApiError_when_query_parameters_are_missing() throws Exception {
+
+
+        this.mockMvc.perform(get("/currencies/convert"))
+                .andExpect(status().isBadRequest())
+                .andExpect(
+                        MockMvcResultMatchers.jsonPath("$.message")
+                                .value("Required request parameter 'source' for method parameter type String is not present")
+                );
+
+        this.mockMvc.perform(get("/currencies/convert?source=test"))
+                .andExpect(status().isBadRequest())
+                .andExpect(
+                        MockMvcResultMatchers.jsonPath("$.message")
+                                .value("Required request parameter 'target' for method parameter type String is not present")
+                );
+
+
+        this.mockMvc.perform(get("/currencies/convert?source=test&target=test"))
+                .andExpect(status().isBadRequest())
+                .andExpect(
+                        MockMvcResultMatchers.jsonPath("$.message")
+                                .value("Required request parameter 'amount' for method parameter type double is not present")
+                );
+
 
     }
 
